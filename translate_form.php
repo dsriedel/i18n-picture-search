@@ -153,6 +153,7 @@
 				{
 					echo "<br/>";
 				}
+				echo "<p>Total: ".$result['total']."</p>";
 			}
 			
 			/**
