@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>i18n picture search</title>
+
+<script src="http://www.google.com/jsapi"></script>
+<script type="text/javascript">
+google.load("jquery", "1.3.2");
+</script>
+
+<script type="text/javascript">
+google.load("language", "1");
+
+jQuery.noConflict();
+
+var translations = "";
+
+function addTranslation(str) {
+  translations += str+"-";
+}
+
+function callTranslator(sourceLanguage, text) {
+	
+	for (l in google.language.Languages) {
+    var targetLanguage = google.language.Languages[l];
+      
+    if(targetLanguage != sourceLanguage) {
+
+      google.language.translate(text, sourceLanguage, targetLanguage, function(resultTranslate) {
+        if (!resultTranslate.error) {
+          jQuery("#tagcloud").append("<span>"+resultTranslate.translation+"</span>");
+          addTranslation(resultTranslate.translation);
+        }
+      });
+    }
+  }
+}
+
+function handleForm() {
+
+	var targetLanguage = "";
+	
+	var text = jQuery("#userText").val();
+  google.language.detect(text, function(resultDetect) {
+    if (!resultDetect.error) {
+      var language = 'unknown';
+      for (l in google.language.Languages) {
+        if (google.language.Languages[l] == resultDetect.language) {
+          language = l;
+          break;
+        }
+      }
+      
+      callTranslator(resultDetect.language, text);
+    }
+  });
+
+  /*jQuery.post("tagcloud.php", { query : translations}, function(data){
+	     alert("Data Loaded: " + data);
+  });*/
+	
+	return false;
+}
+
+jQuery(document).ready(function(){
+    google.language.getBranding("branding");
+});
+</script>
+
+<style type="text/css">
+
+div#tagcloud span {
+  padding: 8px;
+}
+
+</style>
+
+</head>
+<body>
+
+<div id="tagcloud"></div>
+
+<div id="container">
+  <form id="search" method="POST">
+    <p>
+      <label id="userTextLabel">Keyword:</label>
+      <input type="text" name="userText" id="userText" class="required"></input>
+    </p>
+    <p>
+      <input id="searchFormSubmit" type="button" value="Send" onclick="javascript:handleForm();">
+    </p>
+  </form>
+</div>
+
+<div id="branding"><!-- Display Google Branding --></div>
+
+</body>
+</html>
